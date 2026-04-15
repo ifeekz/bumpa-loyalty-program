@@ -27,7 +27,7 @@ class PaystackService implements PaymentProviderInterface
         $this->baseUrl   = config('services.paystack.base_url', 'https://api.paystack.co');
     }
 
-    // ── Payment Initialization ────────────────────────────────────────────────
+    // Payment Initialization
 
     public function initializePayment(
         string $email,
@@ -52,7 +52,7 @@ class PaystackService implements PaymentProviderInterface
         ];
     }
 
-    // ── Transaction Verification ──────────────────────────────────────────────
+    // Transaction Verification
 
     public function verifyTransaction(string $reference): array
     {
@@ -70,7 +70,7 @@ class PaystackService implements PaymentProviderInterface
         ];
     }
 
-    // ── Cashback Transfer ─────────────────────────────────────────────────────
+    // Cashback Transfer
 
     public function createTransferRecipient(
         string $name,
@@ -110,7 +110,7 @@ class PaystackService implements PaymentProviderInterface
         ];
     }
 
-    // ── HTTP Helpers ──────────────────────────────────────────────────────────
+    // HTTP Helpers
 
     private function post(string $endpoint, array $payload): array
     {
@@ -176,7 +176,7 @@ class PaystackService implements PaymentProviderInterface
         }
     }
 
-    // ── Currency Helpers ──────────────────────────────────────────────────────
+    // Currency Helpers
 
     /** Convert Naira to kobo (Paystack's unit) */
     private function toKobo(float $naira): int
