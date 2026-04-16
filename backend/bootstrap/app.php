@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
+    ->withProviders([
+        \App\Providers\AppServiceProvider::class,
+        \App\Providers\EventServiceProvider::class,
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         // Force all /api routes to accept JSON responses.
         // This means Laravel treats every /api request as expecting JSON

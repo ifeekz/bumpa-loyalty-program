@@ -46,7 +46,7 @@ trait ApiResponseTrait
         return ApiResponse::error($message, $statusCode, $errors);
     }
 
-    protected function validationError(array $errors, string $message = 'Validation failed.'): JsonResponse
+    protected function validationError(array $errors, ?string $message = null): JsonResponse
     {
         return ApiResponse::validationError($errors, $message);
     }
