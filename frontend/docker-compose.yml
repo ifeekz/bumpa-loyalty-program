@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # VITE_API_URL is baked into the bundle at build time.
+        # /api works because Nginx proxies /api/* to the backend container.
+        VITE_API_URL: /api
+    container_name: loyalty_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      # Nginx uses this to resolve the backend proxy target.
+      # Must match the backend container name in docker-compose.
+      - BACKEND_HOST=${BACKEND_HOST:-loyalty_app}
+    networks:
+      - loyalty_network
+
+# Network
+# Joins the same network as the backend stack so the Nginx proxy can
+# reach the Laravel container by its service name (loyalty_app).
+# If running the full stack together, use the root docker-compose.yml instead.
+networks:
+  loyalty_network:
+    external: true   # Defined in the backend docker-compose.yml

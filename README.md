@@ -1,0 +1,207 @@
+# Loyalty Service
+
+A full-stack e-commerce loyalty program built as a senior full-stack engineer assessment for **Bumpa**. The system awards points, unlocks achievements, promotes badge tiers, and pays cashback to customers via Paystack.
+
+---
+
+## Repository Structure
+
+```
+loyalty-service/
+├── backend/          # Laravel 11 microservice (PHP)
+├── frontend/         # React + Vite SPA (TypeScript)
+├── docker-compose.yml  # Full stack — runs everything together
+├── .env.example
+└── README.md
+```
+
+Each sub-project is independently runnable. The root `docker-compose.yml` is for running the complete integrated stack.
+
+---
+
+## Tech Stack
+
+| Layer         | Backend                                | Frontend                 |
+| ------------- | -------------------------------------- | ------------------------ |
+| Framework     | Laravel 11                             | React 18 + Vite          |
+| Language      | PHP 8.3                                | TypeScript               |
+| Auth          | JWT (`php-open-source-saver/jwt-auth`) | Axios + AuthContext      |
+| Database      | MySQL 8                                | —                        |
+| Queue / Cache | Redis 7                                | —                        |
+| Payments      | Paystack                               | Paystack Checkout        |
+| UI            | —                                      | Tailwind CSS + Shadcn UI |
+| Data fetching | —                                      | TanStack Query v5        |
+| Testing       | Pest PHP                               | —                        |
+| Container     | Docker + docker-compose                | Docker + Nginx           |
+
+---
+
+## Prerequisites
+
+- Docker Desktop
+- Git
+
+No local PHP, Node, MySQL, or Redis required.
+
+---
+
+## Quick Start (Full Stack)
+
+```bash
+# 1. Clone
+git clone <repo-url>
+cd loyalty-service
+
+# 2. Configure
+cp .env.example .env
+# Add your Paystack keys to .env
+
+# 3. Start all containers
+docker-compose up -d --build
+
+# 4. Initialise the backend
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan jwt:secret
+docker-compose exec app php artisan migrate --seed
+```
+
+| Service     | URL                       |
+| ----------- | ------------------------- |
+| Frontend    | http://localhost:3000     |
+| Backend API | http://localhost:8000/api |
+
+> Always run `php artisan` commands via `docker-compose exec app` to ensure consistent environment.
+
+---
+
+## Default Credentials
+
+| Role     | Email              | Password |
+| -------- | ------------------ | -------- |
+| Admin    | admin@loyalty.test | password |
+| Customer | (seeded ×10)       | password |
+
+---
+
+## Environment Variables
+
+Copy `.env.example` to `.env` at the root and fill in:
+
+| Variable              | Description                                   |
+| --------------------- | --------------------------------------------- |
+| `APP_KEY`             | Copy from `backend/.env` after `key:generate` |
+| `PAYSTACK_SECRET_KEY` | From Paystack dashboard                       |
+| `PAYSTACK_PUBLIC_KEY` | From Paystack dashboard                       |
+| `DB_PASSWORD`         | MySQL password (default: `secret`)            |
+| `DB_ROOT_PASSWORD`    | MySQL root password (default: `rootsecret`)   |
+
+Each sub-project also has its own `.env.example` for standalone development — see `backend/README.md` and `frontend/README.md`.
+
+---
+
+## Architecture Overview
+
+```
+Browser
+  └─► Frontend (React SPA — port 3000)
+        └─► Nginx proxy: /api/* ──────────────────────────────────►┐
+                                                                    │
+  Backend (Laravel — port 8000)  ◄───────────────────────────────── ┘
+    ├─► MySQL (purchases, users, badges, achievements)
+    ├─► Redis (queue, cache, JWT blacklist)
+    └─► Paystack API (payment init, verification, cashback transfer)
+         └─► Webhook → ProcessPurchaseJob
+                  └─► PurchaseRecorded event
+                        ├─► HandleAchievementUnlock
+                        ├─► HandleBadgePromotion
+                        └─► HandleCashbackPayout
+```
+
+The frontend Nginx container proxies `/api/*` to the backend — both run on the same origin in production, eliminating CORS entirely.
+
+---
+
+## Loyalty Rules
+
+### Badges
+
+| Badge    | Min Points | Cashback |
+| -------- | ---------- | -------- |
+| Bronze   | 0          | 2%       |
+| Silver   | 500        | 5%       |
+| Gold     | 2,000      | 8%       |
+| Platinum | 5,000      | 12%      |
+
+### Achievements
+
+| Achievement       | Condition               | Points |
+| ----------------- | ----------------------- | ------ |
+| First Purchase    | 1 purchase              | 50     |
+| Regular Shopper   | 5 purchases             | 100    |
+| Loyal Customer    | 10 purchases            | 200    |
+| Dedicated Shopper | 25 purchases            | 500    |
+| Spender           | ₦10,000 lifetime spend  | 100    |
+| Big Spender       | ₦50,000 lifetime spend  | 300    |
+| High Roller       | ₦200,000 lifetime spend | 1,000  |
+| Power Purchase    | Single ≥ ₦5,000         | 75     |
+| Whale             | Single ≥ ₦20,000        | 250    |
+
+---
+
+## Running Sub-projects Independently
+
+**Backend only:**
+
+```bash
+cd backend
+docker-compose up -d --build
+docker-compose exec app php artisan migrate --seed
+```
+
+**Frontend only:**
+
+```bash
+cd frontend
+cp .env.example .env
+pnpm install
+pnpm run dev    # http://localhost:3000
+```
+
+See [`backend/README.md`](./backend/README.md) and [`frontend/README.md`](./frontend/README.md) for full sub-project documentation.
+
+---
+
+## Running Tests
+
+```bash
+# Backend test suites
+docker-compose exec app php artisan test
+docker-compose exec app php artisan test --testsuite=Unit
+docker-compose exec app php artisan test --testsuite=Feature
+docker-compose exec app php artisan test --testsuite=Integration
+```
+
+---
+
+## Git Strategy
+
+Both sub-projects follow GitHub Flow — feature branches off `develop`, merged via pull requests:
+
+```
+main
+ └── develop
+      └── feat/branch-name
+```
+
+---
+
+## Known Limitations
+
+Given the 3-day assessment window, the following were deferred. See `backend/README.md` for the full list with implementation notes:
+
+- Audit trail logging
+- Laravel Horizon (queue monitoring dashboard)
+- Real-time push notifications via Laravel Echo
+- Cashback recipient code persistence per user
+- API versioning (`/api/v1/`)
+- Frontend test coverage (Vitest + React Testing Library)
