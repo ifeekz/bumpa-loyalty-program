@@ -35,21 +35,24 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Public routes
+// Public routes - strict limit, IP-based
 
-Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login',    [AuthController::class, 'login']);
-});
+Route::prefix('auth')
+    ->middleware('throttle:auth')
+    ->group(function () {
+        Route::post('register', [AuthController::class, 'register']);
+        Route::post('login',    [AuthController::class, 'login']);
+    });
 
-// Paystack webhook - must be public, no auth middleware
+// Paystack webhook
 Route::post('purchases/webhook', [PurchaseController::class, 'webhook'])
+    ->middleware('throttle:webhook')
     ->name('purchases.webhook');
 
 
-// JWT-authenticated routes
+// JWT-authenticated routes - generous limit, user-based
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', 'throttle:api'])->group(function () {
 
     Route::prefix('auth')->group(function () {
         Route::post('logout',  [AuthController::class, 'logout']);

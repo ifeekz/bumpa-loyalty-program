@@ -16,6 +16,41 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
+        then: function () {
+            // Define named rate limiters here
+            \Illuminate\Support\Facades\RateLimiter::for('auth', function (Request $request) {
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)
+                    ->by($request->ip())
+                    ->response(function () {
+                        return ApiResponse::error(
+                            'Too many attempts. Please try again in a minute.',
+                            429
+                        );
+                    });
+            });
+
+            \Illuminate\Support\Facades\RateLimiter::for('api', function (Request $request) {
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(60)
+                    ->by($request->user()?->id ?: $request->ip())
+                    ->response(function () {
+                        return ApiResponse::error(
+                            'Too many requests. Please slow down.',
+                            429
+                        );
+                    });
+            });
+
+            \Illuminate\Support\Facades\RateLimiter::for('webhook', function (Request $request) {
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(30)
+                    ->by($request->ip())
+                    ->response(function () {
+                        return ApiResponse::error(
+                            'Too many webhook requests.',
+                            429
+                        );
+                    });
+            });
+        }
     )
     ->withProviders([
         \App\Providers\AppServiceProvider::class,
