@@ -1,429 +1,207 @@
 # Loyalty Service
 
-A complete **loyalty program platform** featuring a Laravel 11 REST API backend and a React + Vite frontend with role-based access control.
+A full-stack e-commerce loyalty program built as a senior full-stack engineer assessment for **Bumpa**. The system awards points, unlocks achievements, promotes badge tiers, and pays cashback to customers via Paystack.
 
 ---
 
-## 📋 Project Overview
-
-**Loyalty Service** is a microservice-based architecture for managing customer loyalty, achievements, badge progression, and cashback rewards through a Paystack payment integration.
-
-### Key Features
-
-- 🔐 **JWT-based Authentication** with token refresh and logout blacklisting
-- 🏆 **Achievements & Badges** — Unlock badges and achievements based on spending and purchase activity
-- 💳 **Paystack Integration** — Secure payment processing with webhook verification
-- 💰 **Cashback System** — Automatic cashback calculations based on customer tier
-- 👥 **Dual Interfaces** — Customer dashboard and admin management panel
-- 🔄 **Event-Driven Queue System** — Async processing of loyalty calculations
-- 🎯 **Role-Based Access Control** — Admin and customer roles with middleware enforcement
-- 🧪 **Comprehensive Testing** — Pest PHP backend tests, React frontend coverage
-
----
-
-## 🏗️ Architecture
+## Repository Structure
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                   React Frontend (Vite)                      │
-│            Customer Dashboard + Admin Panel                  │
-│            (localhost:3000 / localhost:5173)                 │
-└────────────────────┬────────────────────────────────────────┘
-                     │ HTTP/JSON
-                     │
-┌────────────────────▼────────────────────────────────────────┐
-│              Laravel 11 REST API Backend                     │
-│                  (localhost:8000)                            │
-├─────────────────────────────────────────────────────────────┤
-│ ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│ │   MySQL 8    │  │   Redis 7    │  │   Paystack   │         │
-│ │  (Database)  │  │   (Cache &   │  │  (Payments)  │         │
-│ │              │  │    Queues)   │  │              │         │
-│ └──────────────┘  └──────────────┘  └──────────────┘         │
-└─────────────────────────────────────────────────────────────┘
+loyalty-service/
+├── backend/          # Laravel 11 microservice (PHP)
+├── frontend/         # React + Vite SPA (TypeScript)
+├── docker-compose.yml  # Full stack — runs everything together
+├── .env.example
+└── README.md
 ```
 
-### Technology Stack
-
-| Component          | Backend                              | Frontend                  |
-| ------------------ | ------------------------------------ | ------------------------- |
-| **Framework**      | Laravel 11                           | React 18 + Vite           |
-| **Language**       | PHP 8.2                              | TypeScript                |
-| **Database**       | MySQL 8                              | —                         |
-| **Cache/Queue**    | Redis 7                              | —                         |
-| **Authentication** | JWT (php-open-source-saver/jwt-auth) | localStorage + Context    |
-| **Styling**        | —                                    | Tailwind CSS + Shadcn UI  |
-| **Data Fetching**  | —                                    | TanStack Query v5 + Axios |
-| **Testing**        | Pest PHP                             | —                         |
-| **Payments**       | Paystack API                         | —                         |
-| **Container**      | Docker + docker-compose              | Docker                    |
+Each sub-project is independently runnable. The root `docker-compose.yml` is for running the complete integrated stack.
 
 ---
 
-## 🚀 Quick Start
+## Tech Stack
 
-### Prerequisites
+| Layer         | Backend                                | Frontend                 |
+| ------------- | -------------------------------------- | ------------------------ |
+| Framework     | Laravel 11                             | React 18 + Vite          |
+| Language      | PHP 8.3                                | TypeScript               |
+| Auth          | JWT (`php-open-source-saver/jwt-auth`) | Axios + AuthContext      |
+| Database      | MySQL 8                                | —                        |
+| Queue / Cache | Redis 7                                | —                        |
+| Payments      | Paystack                               | Paystack Checkout        |
+| UI            | —                                      | Tailwind CSS + Shadcn UI |
+| Data fetching | —                                      | TanStack Query v5        |
+| Testing       | Pest PHP                               | —                        |
+| Container     | Docker + docker-compose                | Docker + Nginx           |
 
-- **Docker Desktop** (includes Docker & docker-compose)
-- **Git**
-- **Node.js 18+** (for frontend development, or use Docker)
+---
 
-No local PHP, MySQL, or Redis required — everything runs in containers.
+## Prerequisites
 
-### Installation
+- Docker Desktop
+- Git
+
+No local PHP, Node, MySQL, or Redis required.
+
+---
+
+## Quick Start (Full Stack)
 
 ```bash
-# 1. Clone repository
+# 1. Clone
 git clone <repo-url>
 cd loyalty-service
 
-# 2. Configure backend
-cd backend
+# 2. Configure
 cp .env.example .env
-```
+# Add your Paystack keys to .env
 
-Add your keys to `.env`:
-
-```env
-PAYSTACK_SECRET_KEY=sk_test_xxxxx
-PAYSTACK_PUBLIC_KEY=pk_test_xxxxx
-FRONTEND_URL=http://localhost:3000
-ADMIN_URL=http://localhost:5173
-JWT_SECRET=<auto-generated>
-```
-
-```bash
-# 3. Start backend containers
+# 3. Start all containers
 docker-compose up -d --build
 
-# 4. Initialize database
-docker-compose exec app composer install
+# 4. Initialise the backend
 docker-compose exec app php artisan key:generate
 docker-compose exec app php artisan jwt:secret
 docker-compose exec app php artisan migrate --seed
-
-# 5. Configure & start frontend
-cd ../frontend
-cp .env.example .env
-pnpm install
-pnpm run dev
 ```
 
-### Verify Setup
+| Service     | URL                       |
+| ----------- | ------------------------- |
+| Frontend    | http://localhost:3000     |
+| Backend API | http://localhost:8000/api |
+
+> Always run `php artisan` commands via `docker-compose exec app` to ensure consistent environment.
+
+---
+
+## Default Credentials
+
+| Role     | Email              | Password |
+| -------- | ------------------ | -------- |
+| Admin    | admin@loyalty.test | password |
+| Customer | (seeded ×10)       | password |
+
+---
+
+## Environment Variables
+
+Copy `.env.example` to `.env` at the root and fill in:
+
+| Variable              | Description                                   |
+| --------------------- | --------------------------------------------- |
+| `APP_KEY`             | Copy from `backend/.env` after `key:generate` |
+| `PAYSTACK_SECRET_KEY` | From Paystack dashboard                       |
+| `PAYSTACK_PUBLIC_KEY` | From Paystack dashboard                       |
+| `DB_PASSWORD`         | MySQL password (default: `secret`)            |
+| `DB_ROOT_PASSWORD`    | MySQL root password (default: `rootsecret`)   |
+
+Each sub-project also has its own `.env.example` for standalone development — see `backend/README.md` and `frontend/README.md`.
+
+---
+
+## Architecture Overview
+
+```
+Browser
+  └─► Frontend (React SPA — port 3000)
+        └─► Nginx proxy: /api/* ──────────────────────────────────►┐
+                                                                    │
+  Backend (Laravel — port 8000)  ◄───────────────────────────────── ┘
+    ├─► MySQL (purchases, users, badges, achievements)
+    ├─► Redis (queue, cache, JWT blacklist)
+    └─► Paystack API (payment init, verification, cashback transfer)
+         └─► Webhook → ProcessPurchaseJob
+                  └─► PurchaseRecorded event
+                        ├─► HandleAchievementUnlock
+                        ├─► HandleBadgePromotion
+                        └─► HandleCashbackPayout
+```
+
+The frontend Nginx container proxies `/api/*` to the backend — both run on the same origin in production, eliminating CORS entirely.
+
+---
+
+## Loyalty Rules
+
+### Badges
+
+| Badge    | Min Points | Cashback |
+| -------- | ---------- | -------- |
+| Bronze   | 0          | 2%       |
+| Silver   | 500        | 5%       |
+| Gold     | 2,000      | 8%       |
+| Platinum | 5,000      | 12%      |
+
+### Achievements
+
+| Achievement       | Condition               | Points |
+| ----------------- | ----------------------- | ------ |
+| First Purchase    | 1 purchase              | 50     |
+| Regular Shopper   | 5 purchases             | 100    |
+| Loyal Customer    | 10 purchases            | 200    |
+| Dedicated Shopper | 25 purchases            | 500    |
+| Spender           | ₦10,000 lifetime spend  | 100    |
+| Big Spender       | ₦50,000 lifetime spend  | 300    |
+| High Roller       | ₦200,000 lifetime spend | 1,000  |
+| Power Purchase    | Single ≥ ₦5,000         | 75     |
+| Whale             | Single ≥ ₦20,000        | 250    |
+
+---
+
+## Running Sub-projects Independently
+
+**Backend only:**
 
 ```bash
-# Backend health check
-curl http://localhost:8000/api/auth/me
-# → {"success":false,"status_code":401,"message":"Token not provided."}
-
-# Frontend
-# Customer: http://localhost:3000
-# Admin:    http://localhost:5173
+cd backend
+docker-compose up -d --build
+docker-compose exec app php artisan migrate --seed
 ```
 
-### Default Credentials
-
-| Role     | Email                 | Password |
-| -------- | --------------------- | -------- |
-| Admin    | admin@loyalty.test    | password |
-| Customer | customer@loyalty.test | password |
-
----
-
-## 📚 Documentation
-
-Each service has detailed documentation:
-
-### Backend Documentation
-
-See [backend/README.md](./backend/README.md) for:
-
-- 🔌 **API Reference** — Complete endpoint documentation with examples
-- 🛡️ **Security** — JWT, authorization, CORS, rate limits, webhook verification
-- 🎯 **Loyalty Rules** — Badge tiers, achievement conditions, cashback percentages
-- 🔄 **Event Pipeline** — How achievements and badges are processed asynchronously
-- 🧪 **Testing** — Running the test suite (Pest PHP)
-- ⚙️ **Configuration** — Environment variables and advanced setup
-
-### Frontend Documentation
-
-See [frontend/README.md](./frontend/README.md) for:
-
-- 🗺️ **Project Structure** — Folder organization and code architecture
-- 🔐 **Authentication Flow** — JWT handling and token refresh strategy
-- 🛣️ **Route Protection** — Role-based route guards for customer/admin
-- 🎨 **Components** — UI components and custom hooks
-- 📱 **State Management** — AuthContext and data fetching patterns
-
----
-
-## 🔄 Event-Driven Loyalty Pipeline
-
-When a customer completes a payment, an async event pipeline processes loyalty operations:
-
-```
-1️⃣ POST /api/purchases (Customer initiates)
-   └─ Paystack: initialize → authorization_url returned
-
-2️⃣ User completes payment on Paystack
-
-3️⃣ Paystack → POST /api/purchases/webhook (HMAC verified)
-   └─ ProcessPurchaseJob enqueued
-
-4️⃣ ProcessPurchaseJob runs
-   ├─ Verify payment with Paystack
-   ├─ Create Purchase record
-   ├─ Emit PurchaseRecorded event
-   │
-   └─ Event listeners subscribed:
-      ├─ HandleAchievementUnlock (queue: achievements)
-      │  └─ Check all achievement conditions
-      │  └─ Unlock any newly met achievements
-      │  └─ Add loyalty points
-      │
-      ├─ HandleBadgePromotion (queue: achievements, delay: 2s)
-      │  └─ Evaluate badge thresholds
-      │  └─ Promote to higher tier if applicable
-      │  └─ Increase cashback percentage
-      │
-      └─ HandleCashbackPayout (queue: default)
-         └─ Calculate cashback amount
-         └─ Create Paystack transfer recipient
-         └─ Transfer cashback to customer
-```
-
----
-
-## 🎯 Core Entities & Relationships
-
-```
-User (customer or admin)
-├─ Achievements (many) — unlocked, timestamped
-├─ Badges (one) — current tier: Bronze, Silver, Gold, Platinum
-├─ Purchases (many) — payment records from Paystack
-├─ CashbackTransactions (many) — payout history
-└─ LoyaltyPoints (implicit) — sum of achievement points
-
-Loyalty Configuration (admin-managed):
-├─ Badge rules — tiers and cashback percentages
-├─ Achievement rules — conditions and point rewards
-└─ Loyalty settings — global cashback rate, etc.
-```
-
----
-
-## 🧪 Testing
-
-### Backend (Pest PHP)
-
-```bash
-# Run all tests
-docker-compose exec app php artisan test
-
-# Run by suite
-docker-compose exec app php artisan test --testsuite=Unit
-docker-compose exec app php artisan test --testsuite=Feature
-
-# With coverage
-docker-compose exec app php artisan test --coverage
-```
-
-Tests use in-memory SQLite — no database cleanup needed.
-
-### Frontend
+**Frontend only:**
 
 ```bash
 cd frontend
-pnpm run test      # Unit tests
-pnpm run test:ui   # Test UI
+cp .env.example .env
+pnpm install
+pnpm run dev    # http://localhost:3000
 ```
 
----
-
-## 🔒 Security Highlights
-
-- **JWT Authentication** — Stateless, cryptographically verified tokens
-- **Token Rotation** — Refresh tokens are blacklisted after rotation
-- **HMAC Webhook Verification** — Paystack webhooks are validated before processing
-- **Mass Assignment Protection** — All models use explicit `$fillable` lists
-- **Sensitive Data Redaction** — Paystack responses excluded from logs and API responses
-- **Rate Limiting** — Tiered rate limits on auth, mutations, and webhooks
-- **CORS** — Configured for frontend origins; Authorization header explicitly exposed
-- **Security Headers** — X-Content-Type-Options, X-Frame-Options, CSP, HSTS
-- **Admin Authorization** — Role claim read directly from JWT payload (zero DB lookups)
-
-See [backend/README.md](./backend/README.md#security) for detailed threat model and mitigation strategies.
+See [`backend/README.md`](./backend/README.md) and [`frontend/README.md`](./frontend/README.md) for full sub-project documentation.
 
 ---
 
-## 🐳 Docker Compose Services
-
-All services are defined in `backend/docker-compose.yml`:
-
-| Service | Port | Purpose              |
-| ------- | ---- | -------------------- |
-| `app`   | 8000 | PHP-FPM (Laravel)    |
-| `nginx` | 8000 | HTTP reverse proxy   |
-| `mysql` | 3306 | Database             |
-| `redis` | 6379 | Cache & queue broker |
-| `queue` | —    | Async job worker     |
+## Running Tests
 
 ```bash
-# Stop all containers
-docker-compose down
-
-# View logs
-docker-compose logs -f app
-
-# Restart a service
-docker-compose restart app
+# Backend test suites
+docker-compose exec app php artisan test
+docker-compose exec app php artisan test --testsuite=Unit
+docker-compose exec app php artisan test --testsuite=Feature
+docker-compose exec app php artisan test --testsuite=Integration
 ```
 
 ---
 
-## 📋 Environment Configuration
+## Git Strategy
 
-### Backend (.env)
+Both sub-projects follow GitHub Flow — feature branches off `develop`, merged via pull requests:
 
-```env
-# App
-APP_NAME=LoyaltyService
-APP_ENV=local
-APP_DEBUG=true
-APP_KEY=base64:xxxxxx
-
-# JWT
-JWT_SECRET=xxxxxx                # Generated via php artisan jwt:secret
-JWT_TTL=60                        # Access token lifetime (minutes)
-
-# Database
-DB_HOST=mysql
-DB_DATABASE=loyalty_service
-
-# Redis
-REDIS_HOST=redis
-
-# Paystack
-PAYSTACK_SECRET_KEY=sk_test_xxxxx
-PAYSTACK_PUBLIC_KEY=pk_test_xxxxx
-
-# CORS
-FRONTEND_URL=http://localhost:3000
-ADMIN_URL=http://localhost:5173
-
-# Loyalty
-LOYALTY_CASHBACK_PERCENT=5        # Default for non-badged users
 ```
-
-### Frontend (.env)
-
-```env
-VITE_API_URL=/api                 # Proxied in dev; use full URL in production
+main
+ └── develop
+      └── feat/branch-name
 ```
 
 ---
 
-## 🚢 Deployment
+## Known Limitations
 
-### Prerequisites for Production
+Given the 3-day assessment window, the following were deferred. See `backend/README.md` for the full list with implementation notes:
 
-1. **SSL/TLS Certificates** — Obtain from Let's Encrypt or your CA
-2. **Domain Names** — For backend API and frontend (separate domains recommended)
-3. **Secrets Management** — Never commit `.env` files; use CI/CD secrets
-4. **Database Backup** — Automated backups of MySQL
-5. **Monitoring** — Application logs, queue depth, API response times
-6. **CDN** — For frontend static assets (optional but recommended)
-
-### Deployment Checklist
-
-- [ ] Set `APP_ENV=production` in backend `.env`
-- [ ] Enable `HTTPS_ONLY` middleware
-- [ ] Set strong `JWT_SECRET` (min 32 chars)
-- [ ] Configure DNS for `FRONTEND_URL` and `ADMIN_URL`
-- [ ] Enable CORS for exact domains
-- [ ] Seed production data (users, badge/achievement rules)
-- [ ] Set up monitoring and alerting
-- [ ] Test payment flow end-to-end with Paystack test keys
-- [ ] Configure rate limits appropriately for expected traffic
-- [ ] Run database migrations on production
-- [ ] Monitor queue depth — scale workers if needed
-
----
-
-## 🤔 Known Limitations & Future Work
-
-The backend README includes a detailed section on [Known Limitations & Future Improvements](./backend/README.md#known-limitations--future-improvements), including:
-
-- Audit trail for compliance and dispute resolution
-- Laravel Horizon for real-time queue monitoring
-- Push notifications (Firebase Cloud Messaging)
-- Email notifications for loyalty events
-- Cashback recipient code caching
-- API versioning strategy
-- Refresh token rotation (OAuth 2.0 pattern)
-- Paginated achievement history
-- Database read replicas for scaling
-
----
-
-## 📞 Support & Troubleshooting
-
-### Common Issues
-
-**Port conflicts** (8000 already in use)
-
-```bash
-# Change port in docker-compose.yml and update FRONTEND_URL, ADMIN_URL in .env
-```
-
-**"Connection refused" to MySQL/Redis**
-
-```bash
-# Ensure containers are running
-docker-compose ps
-# If not running, start them
-docker-compose up -d
-```
-
-**JWT secret not set**
-
-```bash
-docker-compose exec app php artisan jwt:secret
-```
-
-**Queue jobs not processing**
-
-```bash
-# Check queue worker logs
-docker-compose logs -f queue
-# Restart worker
-docker-compose restart queue
-```
-
-**Frontend can't reach backend**
-
-- Verify backend running: `curl http://localhost:8000/api/auth/me`
-- Check Vite proxy config in `frontend/vite.config.ts`
-- Verify `FRONTEND_URL` and `ADMIN_URL` in backend `.env`
-
----
-
-## 📝 License
-
-[Add your license here]
-
----
-
-## 👥 Contributors
-
-[Add contributor information here]
-
----
-
-## 🔗 Related Resources
-
-- [Laravel Documentation](https://laravel.com/docs)
-- [React Documentation](https://react.dev)
-- [Paystack Documentation](https://paystack.com/developers)
-- [JWT Best Practices](https://tools.ietf.org/html/rfc8725)
-- [Pest PHP Documentation](https://pestphp.com)
+- Audit trail logging
+- Laravel Horizon (queue monitoring dashboard)
+- Real-time push notifications via Laravel Echo
+- Cashback recipient code persistence per user
+- API versioning (`/api/v1/`)
+- Frontend test coverage (Vitest + React Testing Library)
