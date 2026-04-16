@@ -1,59 +1,231 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Loyalty Service — Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A loyalty program microservice built with **Laravel 11**, **JWT**, **Redis**, **MySQL**, and **Paystack**.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tech Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Layer | Technology |
+|---|---|
+| Framework | Laravel 11 |
+| Auth | JWT (`php-open-source-saver/jwt-auth`) |
+| Database | MySQL 8 |
+| Queue / Cache | Redis 7 |
+| Payments | Paystack |
+| Testing | Pest PHP |
+| Container | Docker + docker-compose |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Prerequisites
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- Docker Desktop
+- Git
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+No local PHP, MySQL, or Redis required.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Setup
 
-### Premium Partners
+```bash
+# 1. Clone and configure
+git clone <repo-url>
+cd loyalty-service
+cp .env.example .env
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Add your Paystack test keys to `.env`:
+```env
+PAYSTACK_SECRET_KEY=sk_test_xxxxxx
+PAYSTACK_PUBLIC_KEY=pk_test_xxxxxx
+```
 
-## Contributing
+```bash
+# 2. Start containers
+docker-compose up -d --build
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 3. Install dependencies
+docker-compose exec app composer install
 
-## Code of Conduct
+# 4. Generate keys
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan jwt:secret
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 5. Run migrations and seed
+docker-compose exec app php artisan migrate --seed
+```
 
-## Security Vulnerabilities
+Verify:
+```bash
+curl http://localhost:8000/api/auth/me
+# → {"success":false,"status_code":401,"message":"Token not provided."}
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+> Always run `php artisan` commands inside the container via `docker-compose exec app` to ensure consistent environment.
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Default Credentials
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@loyalty.test | password |
+| Customer | (seeded ×10) | password |
+
+---
+
+## Environment Variables
+
+| Variable | Description | Default |
+|---|---|---|
+| `JWT_SECRET` | Signing secret — run `jwt:secret` | — |
+| `JWT_TTL` | Access token lifetime (minutes) | `60` |
+| `JWT_REFRESH_TTL` | Refresh window (minutes) | `20160` |
+| `PAYSTACK_SECRET_KEY` | Paystack secret key | — |
+| `PAYSTACK_PUBLIC_KEY` | Paystack public key | — |
+| `LOYALTY_CASHBACK_PERCENT` | Default cashback % (no badge) | `5` |
+
+---
+
+## API Reference
+
+Base URL: `http://localhost:8000/api`
+
+JWT is returned in the `Authorization: Bearer <token>` response header on login, register, and refresh.
+
+### Auth
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/auth/register` | None | Register customer |
+| POST | `/auth/login` | None | Login |
+| POST | `/auth/logout` | JWT | Blacklist token |
+| POST | `/auth/refresh` | JWT | Rotate token |
+| GET | `/auth/me` | JWT | Current user |
+
+### Customer
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/users/{id}/achievements` | Full loyalty profile |
+| POST | `/purchases` | Initiate payment |
+| GET | `/purchases` | Purchase history |
+
+### Admin
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/admin/users/achievements` | All customers (paginated) |
+| GET | `/admin/users/{id}` | Single user detail |
+
+### Webhook
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/purchases/webhook` | Paystack webhook (public) |
+
+---
+
+## Response Envelope
+
+All responses follow this shape:
+
+```json
+{
+    "success": true,
+    "status_code": 200,
+    "message": "Login successful",
+    "data": {}
+}
+```
+
+Validation errors include an `errors` key:
+
+```json
+{
+    "success": false,
+    "status_code": 422,
+    "message": "The email field is required. (+1 more)",
+    "errors": {
+        "email": ["The email field is required."],
+        "password": ["The password field is required."]
+    }
+}
+```
+
+---
+
+## Event-Driven Pipeline
+
+```
+POST /api/purchases
+  └─► Paystack: initialize → return authorization_url
+
+User completes payment on Paystack
+
+Paystack → POST /api/purchases/webhook
+  └─► ProcessPurchaseJob (queue: purchases)
+        └─► Verify with Paystack
+        └─► PurchaseRecorded event
+              ├─► HandleAchievementUnlock  (queue: achievements)
+              ├─► HandleBadgePromotion     (queue: achievements, delay: 2s)
+              └─► HandleCashbackPayout     (queue: default)
+```
+
+---
+
+## Loyalty Rules
+
+### Badges
+
+| Badge | Min Points | Cashback |
+|---|---|---|
+| Bronze | 0 | 2% |
+| Silver | 500 | 5% |
+| Gold | 2,000 | 8% |
+| Platinum | 5,000 | 12% |
+
+### Achievements
+
+| Achievement | Condition | Points |
+|---|---|---|
+| First Purchase | 1 purchase | 50 |
+| Regular Shopper | 5 purchases | 100 |
+| Loyal Customer | 10 purchases | 200 |
+| Dedicated Shopper | 25 purchases | 500 |
+| Spender | ₦10,000 spent | 100 |
+| Big Spender | ₦50,000 spent | 300 |
+| High Roller | ₦200,000 spent | 1,000 |
+| Power Purchase | Single ≥ ₦5,000 | 75 |
+| Whale | Single ≥ ₦20,000 | 250 |
+
+---
+
+## Running Tests
+
+```bash
+# All suites
+docker-compose exec app php artisan test
+
+# By suite
+docker-compose exec app php artisan test --testsuite=Unit
+docker-compose exec app php artisan test --testsuite=Feature
+docker-compose exec app php artisan test --testsuite=Integration
+
+# With coverage
+docker-compose exec app php artisan test --coverage
+```
+
+Tests use in-memory SQLite with `QUEUE_CONNECTION=sync` — no Redis worker needed.
+
+---
+
+## Rate Limits
+
+| Route group | Limit | Keyed by |
+|---|---|---|
+| `/auth/register`, `/auth/login` | 5/min | IP |
+| Authenticated routes | 60/min | User ID |
+| `/purchases/webhook` | 30/min | IP |
