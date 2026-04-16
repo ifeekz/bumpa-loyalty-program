@@ -83,7 +83,6 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsToMany(Achievement::class, 'user_achievements')
             ->withPivot('unlocked_at')
-            ->withTimestamps()
             ->orderByPivot('unlocked_at', 'desc');
     }
 
@@ -91,7 +90,6 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsToMany(Badge::class, 'user_badges')
             ->withPivot(['is_current', 'earned_at'])
-            ->withTimestamps()
             ->orderByPivot('earned_at', 'desc');
     }
 

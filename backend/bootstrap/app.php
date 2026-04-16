@@ -16,16 +16,67 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
+        then: function () {
+            // Define named rate limiters here
+            \Illuminate\Support\Facades\RateLimiter::for('auth', function (Request $request) {
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)
+                    ->by($request->ip())
+                    ->response(function () {
+                        return ApiResponse::error(
+                            'Too many attempts. Please try again in a minute.',
+                            429
+                        );
+                    });
+            });
+
+            \Illuminate\Support\Facades\RateLimiter::for('api', function (Request $request) {
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(60)
+                    ->by($request->user()?->id ?: $request->ip())
+                    ->response(function () {
+                        return ApiResponse::error(
+                            'Too many requests. Please slow down.',
+                            429
+                        );
+                    });
+            });
+
+            \Illuminate\Support\Facades\RateLimiter::for('webhook', function (Request $request) {
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(30)
+                    ->by($request->ip())
+                    ->response(function () {
+                        return ApiResponse::error(
+                            'Too many webhook requests.',
+                            429
+                        );
+                    });
+            });
+        }
     )
+    ->withProviders([
+        \App\Providers\AppServiceProvider::class,
+        \App\Providers\EventServiceProvider::class,
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         // Force all /api routes to accept JSON responses.
         // This means Laravel treats every /api request as expecting JSON
         // even if the client forgot to send Accept: application/json
         $middleware->api(prepend: [
+            \App\Http\Middleware\SecurityHeaders::class,
+            \Illuminate\Http\Middleware\HandleCors::class,
             \App\Http\Middleware\ForceJsonResponse::class,
+        ]);
+
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Exclude sensitive fields from exception context
+        $exceptions->dontReport([
+            \PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException::class,
+            \PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException::class,
+        ]);
+        
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
                 return ApiResponse::notFound('Resource not found.');
@@ -41,6 +92,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (ValidationException $e, Request $request) {
             if ($request->is('api/*')) {
                 return ApiResponse::validationError($e->errors());
+            }
+        });
+
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return ApiResponse::unauthorized('Unauthenticated.');
             }
         });
 

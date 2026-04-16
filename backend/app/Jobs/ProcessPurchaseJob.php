@@ -122,6 +122,7 @@ class ProcessPurchaseJob implements ShouldQueue
     {
         Log::error('ProcessPurchaseJob permanently failed', [
             'reference' => $this->purchaseData->reference,
+            'user_id'   => $this->purchaseData->userId,
             'error'     => $exception->getMessage(),
         ]);
     }

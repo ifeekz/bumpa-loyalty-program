@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PurchaseController;
+use App\Http\Controllers\Api\UserAchievementController;
+use App\Http\Controllers\Admin;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,28 +19,64 @@ use Illuminate\Support\Facades\Route;
 |   Public
 |     POST /api/auth/register
 |     POST /api/auth/login
+|     POST /api/purchases/webhook
 |
 |   Authenticated (JWT required)
 |     POST  /api/auth/logout
 |     POST  /api/auth/refresh
 |     GET   /api/auth/me
+|     GET   /api/users/{user}/achievements
+|     POST  /api/purchases
+|     GET   /api/purchases
+|
+|   Admin only (JWT + role:admin claim)
+|     GET  /api/admin/users/achievements
+|     GET  /api/admin/users/{user}
 |
 */
 
-// Public routes
+// Public routes - strict limit, IP-based
 
-Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login',    [AuthController::class, 'login']);
-});
+Route::prefix('auth')
+    ->middleware('throttle:auth')
+    ->group(function () {
+        Route::post('register', [AuthController::class, 'register']);
+        Route::post('login',    [AuthController::class, 'login']);
+    });
 
-// JWT-authenticated routes
+// Paystack webhook
+Route::post('purchases/webhook', [PurchaseController::class, 'webhook'])
+    ->middleware('throttle:webhook')
+    ->name('purchases.webhook');
 
-Route::middleware('auth:api')->group(function () {
+
+// JWT-authenticated routes - generous limit, user-based
+
+Route::middleware(['auth:api', 'throttle:api'])->group(function () {
 
     Route::prefix('auth')->group(function () {
         Route::post('logout',  [AuthController::class, 'logout']);
         Route::post('refresh', [AuthController::class, 'refresh']);
         Route::get('me',       [AuthController::class, 'me']);
     });
+
+    Route::get('users/{user}/achievements', [UserAchievementController::class, 'show'])
+        ->name('users.achievements');
+
+    Route::prefix('purchases')->group(function () {
+        Route::get('/',  [PurchaseController::class, 'index']);
+        Route::post('/', [PurchaseController::class, 'initiate']);
+    });
+
+    // Admin routes — JWT + role claim check
+    Route::middleware('admin')
+        ->prefix('admin')
+        ->name('admin.')
+        ->group(function () {
+            Route::get('users/achievements', [Admin\UserAchievementController::class, 'index'])
+                ->name('users.achievements');
+
+            Route::get('users/{user}', [Admin\UserAchievementController::class, 'show'])
+                ->name('users.show');
+        });
 });

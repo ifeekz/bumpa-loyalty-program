@@ -29,6 +29,10 @@ class CashbackTransaction extends Model
         'paid_at'           => 'datetime',
     ];
 
+    protected $hidden = [
+        'paystack_response',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

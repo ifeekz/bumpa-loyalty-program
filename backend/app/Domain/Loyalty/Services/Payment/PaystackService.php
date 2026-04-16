@@ -129,7 +129,6 @@ class PaystackService implements PaymentProviderInterface
             }
 
             return $body;
-
         } catch (RequestException $e) {
             Log::error('Paystack HTTP error', [
                 'endpoint' => $endpoint,
@@ -139,7 +138,7 @@ class PaystackService implements PaymentProviderInterface
 
             throw new PaymentException(
                 "Paystack request failed [{$e->response->status()}]: " .
-                ($e->response->json('message') ?? $e->getMessage())
+                    ($e->response->json('message') ?? $e->getMessage())
             );
         }
     }
@@ -161,7 +160,6 @@ class PaystackService implements PaymentProviderInterface
             }
 
             return $body;
-
         } catch (RequestException $e) {
             Log::error('Paystack HTTP error', [
                 'endpoint' => $endpoint,
@@ -171,7 +169,7 @@ class PaystackService implements PaymentProviderInterface
 
             throw new PaymentException(
                 "Paystack request failed [{$e->response->status()}]: " .
-                ($e->response->json('message') ?? $e->getMessage())
+                    ($e->response->json('message') ?? $e->getMessage())
             );
         }
     }

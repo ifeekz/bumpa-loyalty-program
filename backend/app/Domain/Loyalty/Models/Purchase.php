@@ -32,6 +32,10 @@ class Purchase extends Model
         'completed_at'          => 'datetime',
     ];
 
+    protected $hidden = [
+        'paystack_response',
+    ];
+
     // Override: bypassing the namespace-convention factory resolver.
     protected static function newFactory(): PurchaseFactory
     {
