@@ -9,6 +9,8 @@ class UserBadge extends Model
 {
     protected $table = 'user_badges';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'user_id',
         'badge_id',

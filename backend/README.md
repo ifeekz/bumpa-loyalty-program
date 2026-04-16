@@ -309,7 +309,7 @@ Tests use in-memory SQLite with `QUEUE_CONNECTION=sync` — no Redis worker need
 
 ## Known Limitations & Future Improvements
 
-Given the 3-day assessment window, the following were considered but deferred. They are documented here to demonstrate awareness of production requirements.
+Given the 2-day assessment window, the following were considered but deferred. They are documented here to demonstrate awareness of production requirements.
 
 ### Audit Trail
 A dedicated `audit_logs` table would track every state-changing action across the system:
