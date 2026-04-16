@@ -115,10 +115,13 @@ class PaystackService implements PaymentProviderInterface
     private function post(string $endpoint, array $payload): array
     {
         try {
-            $response = Http::withToken($this->secretKey)
-                ->acceptJson()
-                ->post("{$this->baseUrl}{$endpoint}", $payload)
-                ->throw();    // Throws RequestException on 4xx/5xx
+            $http = Http::withToken($this->secretKey)->acceptJson();
+
+            if (! app()->isProduction()) {
+                $http = $http->withoutVerifying();
+            }
+
+            $response = $http->post("{$this->baseUrl}{$endpoint}", $payload)->throw();
 
             $body = $response->json();
 
@@ -147,10 +150,13 @@ class PaystackService implements PaymentProviderInterface
     private function get(string $endpoint): array
     {
         try {
-            $response = Http::withToken($this->secretKey)
-                ->acceptJson()
-                ->get("{$this->baseUrl}{$endpoint}")
-                ->throw();
+            $http = Http::withToken($this->secretKey)->acceptJson();
+
+            if (! app()->isProduction()) {
+                $http = $http->withoutVerifying();
+            }
+
+            $response = $http->get("{$this->baseUrl}{$endpoint}")->throw();
 
             $body = $response->json();
 

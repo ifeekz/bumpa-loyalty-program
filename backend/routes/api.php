@@ -70,7 +70,6 @@ Route::middleware('auth:api')->group(function () {
         ->prefix('admin')
         ->name('admin.')
         ->group(function () {
-            // Assessment required: GET /api/admin/users/achievements
             Route::get('users/achievements', [Admin\UserAchievementController::class, 'index'])
                 ->name('users.achievements');
 
