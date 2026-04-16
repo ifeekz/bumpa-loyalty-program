@@ -197,7 +197,7 @@ main
 
 ## Known Limitations
 
-Given the 3-day assessment window, the following were deferred. See `backend/README.md` for the full list with implementation notes:
+Given the 2-day assessment window, the following were deferred. See `backend/README.md` for the full list with implementation notes:
 
 - Audit trail logging
 - Laravel Horizon (queue monitoring dashboard)

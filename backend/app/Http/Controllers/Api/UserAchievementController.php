@@ -33,7 +33,7 @@ class UserAchievementController extends Controller
         $user->load([
             'achievements',
             'currentBadge.badge',
-            'badges' => fn ($q) => $q->withPivot(['is_current', 'earned_at'])->with('badge'),
+            'badges' => fn ($q) => $q->withPivot(['is_current', 'earned_at']),
         ]);
 
         $currentBadge = $user->currentBadge?->badge;
