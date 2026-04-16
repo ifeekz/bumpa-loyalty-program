@@ -61,6 +61,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // This means Laravel treats every /api request as expecting JSON
         // even if the client forgot to send Accept: application/json
         $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
             \App\Http\Middleware\ForceJsonResponse::class,
         ]);
 

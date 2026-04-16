@@ -36,10 +36,12 @@ cd loyalty-service
 cp .env.example .env
 ```
 
-Add your Paystack test keys to `.env`:
+Add your keys to `.env`:
 ```env
 PAYSTACK_SECRET_KEY=sk_test_xxxxxx
 PAYSTACK_PUBLIC_KEY=pk_test_xxxxxx
+FRONTEND_URL=http://localhost:3000
+ADMIN_URL=http://localhost:5173
 ```
 
 ```bash
@@ -86,6 +88,8 @@ curl http://localhost:8000/api/auth/me
 | `PAYSTACK_SECRET_KEY` | Paystack secret key | — |
 | `PAYSTACK_PUBLIC_KEY` | Paystack public key | — |
 | `LOYALTY_CASHBACK_PERCENT` | Default cashback % (no badge) | `5` |
+| `FRONTEND_URL` | Customer dashboard origin | `http://localhost:3000` |
+| `ADMIN_URL` | Admin panel origin | `http://localhost:5173` |
 
 ---
 
@@ -203,6 +207,29 @@ Paystack → POST /api/purchases/webhook
 
 ---
 
+## CORS
+
+Allowed origins are configured via `.env`. In production replace with your actual domains:
+
+```env
+FRONTEND_URL=https://yourapp.com
+ADMIN_URL=https://admin.yourapp.com
+```
+
+The `Authorization` and `X-Token-TTL` headers are explicitly exposed so the React frontend can read the JWT from cross-origin responses.
+
+---
+
+## Rate Limits
+
+| Route group | Limit | Keyed by |
+|---|---|---|
+| `/auth/register`, `/auth/login` | 5/min | IP |
+| Authenticated routes | 60/min | User ID |
+| `/purchases/webhook` | 30/min | IP |
+
+---
+
 ## Running Tests
 
 ```bash
@@ -219,13 +246,3 @@ docker-compose exec app php artisan test --coverage
 ```
 
 Tests use in-memory SQLite with `QUEUE_CONNECTION=sync` — no Redis worker needed.
-
----
-
-## Rate Limits
-
-| Route group | Limit | Keyed by |
-|---|---|---|
-| `/auth/register`, `/auth/login` | 5/min | IP |
-| Authenticated routes | 60/min | User ID |
-| `/purchases/webhook` | 30/min | IP |
