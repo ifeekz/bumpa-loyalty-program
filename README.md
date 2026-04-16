@@ -2,14 +2,16 @@
 
 A full-stack e-commerce loyalty program built as a senior full-stack engineer assessment for **Bumpa**. The system awards points, unlocks achievements, promotes badge tiers, and pays cashback to customers via Paystack.
 
+**[Backend Documentation](./backend/README.md)** · **[Frontend Documentation](./frontend/README.md)**
+
 ---
 
 ## Repository Structure
 
 ```
 loyalty-service/
-├── backend/          # Laravel 11 microservice (PHP)
-├── frontend/         # React + Vite SPA (TypeScript)
+├── backend/            # Laravel 11 microservice (PHP)
+├── frontend/           # React + Vite SPA (TypeScript)
 ├── docker-compose.yml  # Full stack — runs everything together
 ├── .env.example
 └── README.md
@@ -21,18 +23,18 @@ Each sub-project is independently runnable. The root `docker-compose.yml` is for
 
 ## Tech Stack
 
-| Layer         | Backend                                | Frontend                 |
-| ------------- | -------------------------------------- | ------------------------ |
-| Framework     | Laravel 11                             | React 18 + Vite          |
-| Language      | PHP 8.3                                | TypeScript               |
-| Auth          | JWT (`php-open-source-saver/jwt-auth`) | Axios + AuthContext      |
-| Database      | MySQL 8                                | —                        |
-| Queue / Cache | Redis 7                                | —                        |
-| Payments      | Paystack                               | Paystack Checkout        |
-| UI            | —                                      | Tailwind CSS + Shadcn UI |
-| Data fetching | —                                      | TanStack Query v5        |
-| Testing       | Pest PHP                               | —                        |
-| Container     | Docker + docker-compose                | Docker + Nginx           |
+| Layer | Backend | Frontend |
+|---|---|---|
+| Framework | Laravel 11 | React 18 + Vite |
+| Language | PHP 8.3 | TypeScript |
+| Auth | JWT (`php-open-source-saver/jwt-auth`) | Axios + AuthContext |
+| Database | MySQL 8 | — |
+| Queue / Cache | Redis 7 | — |
+| Payments | Paystack | Paystack Checkout |
+| UI | — | Tailwind CSS + Shadcn UI |
+| Data fetching | — | TanStack Query v5 |
+| Testing | Pest PHP | — |
+| Container | Docker + docker-compose | Docker + Nginx |
 
 ---
 
@@ -65,9 +67,9 @@ docker-compose exec app php artisan jwt:secret
 docker-compose exec app php artisan migrate --seed
 ```
 
-| Service     | URL                       |
-| ----------- | ------------------------- |
-| Frontend    | http://localhost:3000     |
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
 | Backend API | http://localhost:8000/api |
 
 > Always run `php artisan` commands via `docker-compose exec app` to ensure consistent environment.
@@ -76,10 +78,10 @@ docker-compose exec app php artisan migrate --seed
 
 ## Default Credentials
 
-| Role     | Email              | Password |
-| -------- | ------------------ | -------- |
-| Admin    | admin@loyalty.test | password |
-| Customer | (seeded ×10)       | password |
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@loyalty.test | password |
+| Customer | (seeded ×10) | password |
 
 ---
 
@@ -87,13 +89,13 @@ docker-compose exec app php artisan migrate --seed
 
 Copy `.env.example` to `.env` at the root and fill in:
 
-| Variable              | Description                                   |
-| --------------------- | --------------------------------------------- |
-| `APP_KEY`             | Copy from `backend/.env` after `key:generate` |
-| `PAYSTACK_SECRET_KEY` | From Paystack dashboard                       |
-| `PAYSTACK_PUBLIC_KEY` | From Paystack dashboard                       |
-| `DB_PASSWORD`         | MySQL password (default: `secret`)            |
-| `DB_ROOT_PASSWORD`    | MySQL root password (default: `rootsecret`)   |
+| Variable | Description |
+|---|---|
+| `APP_KEY` | Copy from `backend/.env` after `key:generate` |
+| `PAYSTACK_SECRET_KEY` | From Paystack dashboard |
+| `PAYSTACK_PUBLIC_KEY` | From Paystack dashboard |
+| `DB_PASSWORD` | MySQL password (default: `secret`) |
+| `DB_ROOT_PASSWORD` | MySQL root password (default: `rootsecret`) |
 
 Each sub-project also has its own `.env.example` for standalone development — see `backend/README.md` and `frontend/README.md`.
 
@@ -125,57 +127,57 @@ The frontend Nginx container proxies `/api/*` to the backend — both run on the
 
 ### Badges
 
-| Badge    | Min Points | Cashback |
-| -------- | ---------- | -------- |
-| Bronze   | 0          | 2%       |
-| Silver   | 500        | 5%       |
-| Gold     | 2,000      | 8%       |
-| Platinum | 5,000      | 12%      |
+| Badge | Min Points | Cashback |
+|---|---|---|
+| Bronze | 0 | 2% |
+| Silver | 500 | 5% |
+| Gold | 2,000 | 8% |
+| Platinum | 5,000 | 12% |
 
 ### Achievements
 
-| Achievement       | Condition               | Points |
-| ----------------- | ----------------------- | ------ |
-| First Purchase    | 1 purchase              | 50     |
-| Regular Shopper   | 5 purchases             | 100    |
-| Loyal Customer    | 10 purchases            | 200    |
-| Dedicated Shopper | 25 purchases            | 500    |
-| Spender           | ₦10,000 lifetime spend  | 100    |
-| Big Spender       | ₦50,000 lifetime spend  | 300    |
-| High Roller       | ₦200,000 lifetime spend | 1,000  |
-| Power Purchase    | Single ≥ ₦5,000         | 75     |
-| Whale             | Single ≥ ₦20,000        | 250    |
+| Achievement | Condition | Points |
+|---|---|---|
+| First Purchase | 1 purchase | 50 |
+| Regular Shopper | 5 purchases | 100 |
+| Loyal Customer | 10 purchases | 200 |
+| Dedicated Shopper | 25 purchases | 500 |
+| Spender | ₦10,000 lifetime spend | 100 |
+| Big Spender | ₦50,000 lifetime spend | 300 |
+| High Roller | ₦200,000 lifetime spend | 1,000 |
+| Power Purchase | Single ≥ ₦5,000 | 75 |
+| Whale | Single ≥ ₦20,000 | 250 |
 
 ---
 
 ## Running Sub-projects Independently
 
 **Backend only:**
-
 ```bash
 cd backend
 docker-compose up -d --build
 docker-compose exec app php artisan migrate --seed
 ```
+→ Full documentation: [`backend/README.md`](./backend/README.md)
 
 **Frontend only:**
-
 ```bash
 cd frontend
 cp .env.example .env
 pnpm install
 pnpm run dev    # http://localhost:3000
 ```
-
-See [`backend/README.md`](./backend/README.md) and [`frontend/README.md`](./frontend/README.md) for full sub-project documentation.
+→ Full documentation: [`frontend/README.md`](./frontend/README.md)
 
 ---
 
 ## Running Tests
 
 ```bash
-# Backend test suites
+# Backend — all suites
 docker-compose exec app php artisan test
+
+# By suite
 docker-compose exec app php artisan test --testsuite=Unit
 docker-compose exec app php artisan test --testsuite=Feature
 docker-compose exec app php artisan test --testsuite=Integration
@@ -197,7 +199,7 @@ main
 
 ## Known Limitations
 
-Given the 2-day assessment window, the following were deferred. See `backend/README.md` for the full list with implementation notes:
+Given the assessment window, the following were deferred. See [`backend/README.md`](./backend/README.md) for full implementation notes:
 
 - Audit trail logging
 - Laravel Horizon (queue monitoring dashboard)
