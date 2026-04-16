@@ -128,3 +128,27 @@ pnpm run build
 ```
 
 Outputs to `dist/`. Serve with any static file server. Ensure your server redirects all routes to `index.html` for client-side routing.
+
+---
+
+## Docker
+
+This app can be containerized and served using Docker with Nginx.
+
+### Build the image
+
+```bash
+docker build -t loyalty-frontend .
+```
+
+### Run the container
+
+```bash
+docker run -p 3000:80 -d loyalty-frontend
+```
+
+The app will be available at:
+
+```bash
+http://localhost:3000
+```
