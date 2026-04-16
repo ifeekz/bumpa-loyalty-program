@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
  * GET  /api/admin/users/achievements   — paginated list of ALL users with loyalty summaries
  * GET  /api/admin/users/{user}         — detailed profile for a specific user (admin view)
  *
- * Protected by 'auth:sanctum' + 'ability:role:admin' middleware (see routes/api.php).
+ * Protected by 'auth:api' + 'admin' middleware (see routes/api.php).
  */
 class UserAchievementController extends Controller
 {
@@ -33,7 +33,7 @@ class UserAchievementController extends Controller
             'per_page' => 'nullable|integer|min:5|max:100',
         ]);
 
-        $query = User::query()
+        $users = User::query()
             ->where('role', 'customer')
             ->withCount('achievements')
             ->with(['currentBadge.badge'])
@@ -44,12 +44,11 @@ class UserAchievementController extends Controller
             ->when($request->badge, fn ($q, $badge) =>
                 $q->whereHas('currentBadge.badge', fn ($bq) => $bq->where('slug', $badge))
             )
-            ->orderByDesc('loyalty_points');
-
-        $users = $query->paginate($request->per_page ?? 20);
+            ->orderByDesc('loyalty_points')
+            ->paginate($request->per_page ?? 20);
 
         return $this->success('Users retrieved.', [
-            'data' => collect($users->items())->map(fn(User $u) => [
+            'data' => collect($users->items())->map(fn (User $u) => [
                 'id'                 => $u->id,
                 'name'               => $u->name,
                 'email'              => $u->email,
@@ -74,15 +73,15 @@ class UserAchievementController extends Controller
 
     /**
      * GET /api/admin/users/{user}
-     * Full detail view of a single user - same structure as customer endpoint
-     * but accessible by admins for any user.
+     *
+     * Full detail view of a single user accessible by admins only.
      */
     public function show(User $user): JsonResponse
     {
         $user->load([
             'achievements',
             'currentBadge.badge',
-            'purchases' => fn ($q) => $q->latest()->limit(10),
+            'purchases'            => fn ($q) => $q->latest()->limit(10),
             'cashbackTransactions' => fn ($q) => $q->latest()->limit(10),
         ]);
 
@@ -96,13 +95,13 @@ class UserAchievementController extends Controller
                 'created_at'     => $user->created_at,
             ],
             'current_badge' => $user->currentBadge?->badge,
-            'achievements'  => $user->achievements->map(fn($a) => [
+            'achievements'  => $user->achievements->map(fn ($a) => [
                 'id'          => $a->id,
                 'name'        => $a->name,
                 'icon'        => $a->icon,
                 'unlocked_at' => $a->pivot->unlocked_at,
             ]),
-            'recent_purchases' => $user->purchases->map(fn($p) => [
+            'recent_purchases' => $user->purchases->map(fn ($p) => [
                 'reference'       => $p->reference,
                 'amount'          => (float) $p->amount,
                 'cashback_amount' => (float) $p->cashback_amount,

@@ -61,6 +61,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // This means Laravel treats every /api request as expecting JSON
         // even if the client forgot to send Accept: application/json
         $middleware->api(prepend: [
+            \App\Http\Middleware\SecurityHeaders::class,
             \Illuminate\Http\Middleware\HandleCors::class,
             \App\Http\Middleware\ForceJsonResponse::class,
         ]);
@@ -70,6 +71,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Exclude sensitive fields from exception context
+        $exceptions->dontReport([
+            \PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException::class,
+            \PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException::class,
+        ]);
+        
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
                 return ApiResponse::notFound('Resource not found.');

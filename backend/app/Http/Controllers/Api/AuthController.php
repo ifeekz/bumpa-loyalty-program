@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use Illuminate\Validation\Rules\Password;
 
 /**
  * AuthController
@@ -32,7 +33,14 @@ class AuthController extends Controller
         $data = $request->validate([
             'name'             => 'required|string|max:255',
             'email'            => 'required|email|unique:users,email',
-            'password'         => 'required|string|min:8|same:confirm_password',
+            'password'         => [
+                'required',
+                'same:confirm_password',
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+            ],
             'confirm_password' => 'required|string',
         ]);
 

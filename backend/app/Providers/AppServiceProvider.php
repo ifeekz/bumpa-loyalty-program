@@ -25,5 +25,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+
+        if (app()->isProduction()) {
+            $secret = config('jwt.secret');
+
+            if (empty($secret) || strlen($secret) < 32) {
+                throw new \RuntimeException(
+                    'JWT_SECRET must be set and at least 32 characters in production.'
+                );
+            }
+        }
     }
 }
