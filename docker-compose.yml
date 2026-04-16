@@ -1,0 +1,165 @@
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────────
+  # PHP Application (FPM)
+  # ─────────────────────────────────────────────
+  app:
+    build:
+      context: ./backend
+      dockerfile: docker/php/Dockerfile
+    container_name: loyalty_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - ./backend/docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - loyalty_network
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - APP_ENV=${APP_ENV:-local}
+      - APP_KEY=${APP_KEY}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-loyalty_db}
+      - DB_USERNAME=${DB_USERNAME:-loyalty_user}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QUEUE_CONNECTION=redis
+      - PAYSTACK_SECRET_KEY=${PAYSTACK_SECRET_KEY}
+      - PAYSTACK_PUBLIC_KEY=${PAYSTACK_PUBLIC_KEY}
+      - PAYSTACK_BASE_URL=https://api.paystack.co
+
+  # ─────────────────────────────────────────────
+  # Backend Nginx
+  # ─────────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: loyalty_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www
+      - ./backend/docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - loyalty_network
+    depends_on:
+      - app
+
+  # ─────────────────────────────────────────────
+  # MySQL
+  # ─────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: loyalty_mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE:      ${DB_DATABASE:-loyalty_db}
+      MYSQL_USER:          ${DB_USERNAME:-loyalty_user}
+      MYSQL_PASSWORD:      ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - loyalty_network
+    healthcheck:
+      test:     ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout:  5s
+      retries:  5
+
+  # ─────────────────────────────────────────────
+  # Redis
+  # ─────────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: loyalty_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - loyalty_network
+    healthcheck:
+      test:     ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout:  3s
+      retries:  5
+
+  # ─────────────────────────────────────────────
+  # Queue Worker
+  # ─────────────────────────────────────────────
+  queue_worker:
+    build:
+      context: ./backend
+      dockerfile: docker/php/Dockerfile
+    container_name: loyalty_queue_worker
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=60 --queue=purchases,achievements,default
+    volumes:
+      - ./backend:/var/www
+    networks:
+      - loyalty_network
+    depends_on:
+      - app
+      - redis
+    environment:
+      - APP_ENV=${APP_ENV:-local}
+      - APP_KEY=${APP_KEY}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-loyalty_db}
+      - DB_USERNAME=${DB_USERNAME:-loyalty_user}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QUEUE_CONNECTION=redis
+
+  # ─────────────────────────────────────────────
+  # Frontend (React + Nginx)
+  # ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # /api is proxied to the backend by the frontend Nginx config.
+        # No CORS needed — both share the same origin via the proxy.
+        VITE_API_URL: /api
+    container_name: loyalty_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      # Nginx inside the frontend container proxies /api/* to this host.
+      # Must match the backend app container name above.
+      - BACKEND_HOST=loyalty_app
+    networks:
+      - loyalty_network
+    depends_on:
+      - app
+
+# ─────────────────────────────────────────────
+# Named Volumes
+# ─────────────────────────────────────────────
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# ─────────────────────────────────────────────
+# Network
+# ─────────────────────────────────────────────
+networks:
+  loyalty_network:
+    driver: bridge
