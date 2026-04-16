@@ -9,7 +9,7 @@ import type {
   AdminUserDetail,
 } from '@/types'
 
-// ─── Loyalty ──────────────────────────────────────────────────────────────────
+// Loyalty
 
 export const loyaltyApi = {
   getProfile: async (userId: number) => {
@@ -20,7 +20,7 @@ export const loyaltyApi = {
   },
 }
 
-// ─── Purchases ────────────────────────────────────────────────────────────────
+// Purchases
 
 export const purchasesApi = {
   getHistory: async () => {
@@ -36,7 +36,7 @@ export const purchasesApi = {
   },
 }
 
-// ─── Admin ────────────────────────────────────────────────────────────────────
+// Admin
 
 export interface AdminUsersParams {
   search?:   string

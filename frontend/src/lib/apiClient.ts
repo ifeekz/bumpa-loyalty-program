@@ -13,7 +13,7 @@ export const apiClient = axios.create({
   timeout: 15000,
 })
 
-// Request interceptor — attach token
+// Request interceptor - attach token
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
