@@ -232,6 +232,50 @@ Paystack → POST /api/purchases/webhook
 
 ---
 
+## Paystack Webhook Testing
+
+Paystack cannot reach `localhost` — their servers are on the internet. Two options for local testing:
+
+**Option 1 — ngrok (live end-to-end testing)**
+
+```bash
+# Install ngrok from https://ngrok.com, then:
+ngrok http 8000
+```
+
+Copy the generated public URL (e.g. `https://abc123.ngrok-free.app`) and set it as your webhook in the [Paystack dashboard](https://dashboard.paystack.com/#/settings/developer):
+
+```
+https://abc123.ngrok-free.app/api/purchases/webhook
+```
+
+ngrok tunnels all Paystack webhook calls to your local port `8000`.
+
+**Option 2 — Simulate the pipeline via Tinker (no ngrok needed)**
+
+Dispatch the job directly as if Paystack had sent the webhook:
+
+```bash
+docker-compose exec app php artisan tinker
+```
+
+```php
+$purchase = \App\Domain\Loyalty\Models\Purchase::where('status', 'pending')->first();
+
+\App\Jobs\ProcessPurchaseJob::dispatch(
+    \App\Domain\Loyalty\DTOs\PurchaseData::fromArray([
+        'user_id'   => $purchase->user_id,
+        'amount'    => $purchase->amount,
+        'reference' => $purchase->reference,
+        'email'     => $purchase->user->email,
+    ])
+);
+```
+
+This fires the full loyalty pipeline — achievements, badge promotion, cashback — without Paystack calling your local server.
+
+---
+
 ## Loyalty Rules
 
 ### Badges
