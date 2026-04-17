@@ -45,9 +45,13 @@ ADMIN_URL=http://localhost:5173
 ```
 
 ```bash
-# 2. Start containers
+# 2. Build and start containers
 docker-compose up -d --build
+```
 
+> Wait for all containers to show **Started** before proceeding.
+
+```bash
 # 3. Install dependencies
 docker-compose exec app composer install
 
@@ -55,8 +59,11 @@ docker-compose exec app composer install
 docker-compose exec app php artisan key:generate
 docker-compose exec app php artisan jwt:secret
 
-# 5. Run migrations and seed
-docker-compose exec app php artisan migrate --seed
+# 5. Run migrations
+docker-compose exec app php artisan migrate
+
+# 6. Seed the database (badges, achievements, admin user, sample customers)
+docker-compose exec app php artisan db:seed
 ```
 
 Verify:
@@ -75,6 +82,49 @@ curl http://localhost:8000/api/auth/me
 |---|---|---|
 | Admin | admin@loyalty.test | password |
 | Customer | (seeded ×10) | password |
+
+---
+
+## Inspecting the Database
+
+**Option 1 — MySQL CLI inside the container:**
+```bash
+docker-compose exec mysql mysql -u loyalty_user -psecret loyalty_db
+```
+Then run any SQL:
+```sql
+SHOW TABLES;
+SELECT * FROM users LIMIT 5;
+SELECT * FROM badges;
+EXIT;
+```
+
+**Option 2 — GUI client (TablePlus, DBeaver, HeidiSQL):**
+
+| Field | Value |
+|---|---|
+| Host | `127.0.0.1` |
+| Port | `3307` |
+| Database | `loyalty_db` |
+| Username | `loyalty_user` |
+| Password | `secret` |
+
+Port `3307` is the host-mapped port — used to avoid conflicts with any local MySQL installation.
+
+**Option 3 — Laravel Tinker (Eloquent queries):**
+```bash
+docker-compose exec app php artisan tinker
+```
+```php
+>>> \App\Domain\Loyalty\Models\User::count();
+>>> \App\Domain\Loyalty\Models\Badge::all();
+>>> \App\Domain\Loyalty\Models\User::first();
+```
+
+**Option 4 — Check migration status:**
+```bash
+docker-compose exec app php artisan migrate:status
+```
 
 ---
 
@@ -309,7 +359,7 @@ Tests use in-memory SQLite with `QUEUE_CONNECTION=sync` — no Redis worker need
 
 ## Known Limitations & Future Improvements
 
-Given the 2-day assessment window, the following were considered but deferred. They are documented here to demonstrate awareness of production requirements.
+Given the assessment window, the following were considered but deferred.
 
 ### Audit Trail
 A dedicated `audit_logs` table would track every state-changing action across the system:
@@ -329,68 +379,38 @@ Schema::create('audit_logs', function (Blueprint $table) {
 });
 ```
 
-This provides a tamper-evident history for compliance, dispute resolution (e.g. "why didn't I get cashback?"), and debugging loyalty pipeline issues in production.
-
----
+This provides a tamper-evident history for compliance, dispute resolution, and debugging loyalty pipeline issues in production.
 
 ### Laravel Horizon
-The current setup uses a plain `queue:work` process in a Docker container. In production, [Laravel Horizon](https://laravel.com/docs/horizon) would replace this with:
-- A real-time dashboard showing queue throughput, job failures, and wait times.
-- Automatic worker balancing based on queue load.
-- Tagged jobs for filtering and monitoring specific users or purchase references.
-- Metrics retention for alerting on SLA breaches.
-
----
+The current setup uses a plain `queue:work` process in a Docker container. In production, [Laravel Horizon](https://laravel.com/docs/horizon) would replace this with a real-time dashboard, automatic worker balancing, tagged jobs, and metrics retention for alerting.
 
 ### Notification System
-Users currently have no visibility into loyalty events outside the API response. A notification layer would deliver:
-- **Email** — badge promotion, cashback confirmation, new achievement.
-- **Push** — real-time in-app via Laravel Echo + Redis broadcasting (the events already implement `ShouldBroadcast` — the infrastructure is in place).
-- **SMS** — Termii or Twilio for Nigerian users who prefer SMS over email.
-
----
+Users have no visibility into loyalty events outside the API response. A notification layer would deliver email, push (via Laravel Echo — the events already implement `ShouldBroadcast`), and SMS via Termii for Nigerian users.
 
 ### Cashback Payout Improvements
-The current implementation creates a Paystack transfer recipient per transaction. A production-grade implementation would:
-- Store the `recipient_code` on the user profile after first creation and reuse it.
-- Introduce a `bank_accounts` table so users can manage multiple payout accounts.
-- Add a manual payout approval step for large cashback amounts (fraud prevention).
-- Implement a retry scheduler for failed transfers using Laravel's task scheduling.
-
----
+- Store `recipient_code` on the user profile after first creation and reuse it.
+- Introduce a `bank_accounts` table for multiple payout accounts.
+- Add manual approval for large cashback amounts (fraud prevention).
+- Retry scheduler for failed transfers via Laravel task scheduling.
 
 ### Input Sanitization
-While all inputs are validated, a `SanitizeInput` middleware stripping HTML tags was considered but deprioritised since this is a JSON API with no HTML rendering. It would be essential if any field value is ever rendered in a web view.
-
----
+A `SanitizeInput` middleware was deprioritised since this is a JSON API with no HTML rendering. It would be essential if any field value is ever rendered in a web view.
 
 ### API Versioning
-Routes are currently unversioned (`/api/purchases`). A versioned structure (`/api/v1/purchases`) would allow breaking changes to be introduced without affecting existing consumers. Laravel supports this cleanly via route prefixes and separate controller namespaces.
+Routes are currently unversioned. A versioned structure (`/api/v1/`) would allow breaking changes without affecting existing consumers.
 
----
-
-### Refresh Token Rotation Strategy
-The current JWT refresh extends the session silently. A stricter implementation would:
-- Issue a one-time-use refresh token stored in Redis.
-- Detect reuse of an already-rotated refresh token as a compromise signal and invalidate all sessions for that user.
-- This is the OAuth 2.0 refresh token rotation pattern recommended for SPAs.
-
----
+### Refresh Token Rotation
+A stricter implementation would issue one-time-use refresh tokens stored in Redis, detecting reuse as a compromise signal and invalidating all sessions — the OAuth 2.0 pattern recommended for SPAs.
 
 ### Pagination on Achievements
-The `GET /api/users/{user}/achievements` endpoint returns all achievements in a single response. For users with long histories this should be paginated with cursor-based pagination (more efficient than offset for large datasets).
-
----
+The achievements endpoint returns all records in one response. Cursor-based pagination would be more efficient for users with long histories.
 
 ### Test Coverage Gaps
-Due to time constraints the following test scenarios were not covered:
 - Concurrent purchase processing (race condition on `processed_for_loyalty`).
 - Paystack webhook replay attacks.
 - Queue job failure and retry behaviour end-to-end.
 - `HandleBadgePromotion` 2-second delay race condition under parallel workers.
 
----
-
 ### Database Optimisation
-- A read replica could be introduced for the admin `GET /api/admin/users/achievements` query which scans the full users table.
-- `loyalty_points` and `total_spent` are denormalised onto the `users` table for read performance — a background reconciliation job should periodically verify these against the source-of-truth tables to catch any drift.
+- A read replica for the admin users query which scans the full users table.
+- Background reconciliation job to verify denormalised `loyalty_points` and `total_spent` against source-of-truth tables.

@@ -142,11 +142,12 @@ services:
     environment:
       # Nginx inside the frontend container proxies /api/* to this host.
       # Must match the backend app container name above.
-      - BACKEND_HOST=loyalty_app
+      - BACKEND_HOST=loyalty_nginx
     networks:
       - loyalty_network
     depends_on:
       - app
+      - nginx
 
 # ─────────────────────────────────────────────
 # Named Volumes
