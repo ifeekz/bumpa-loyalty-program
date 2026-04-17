@@ -17,7 +17,7 @@ const schema = z.object({
 })
 
 export default function LoginPage() {
-  const { login, isLoading, user } = useAuth()
+  const { login, isLoading } = useAuth()
   const { toast }                  = useToast()
   const navigate                   = useNavigate()
   const location                   = useLocation()

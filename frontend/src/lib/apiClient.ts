@@ -72,7 +72,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const { data, headers } = await apiClient.post<ApiResponse>('/auth/refresh')
+        const { headers } = await apiClient.post<ApiResponse>('/auth/refresh')
         const newToken = headers['authorization']?.replace('Bearer ', '')
 
         if (newToken) {
