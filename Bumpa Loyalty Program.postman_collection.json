@@ -1,0 +1,1515 @@
+{
+  "info": {
+    "_postman_id": "845bdc6c-977b-4f63-a7a1-a63bec966d47",
+    "name": "Bumpa Loyalty Program",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "11430366"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {\r",
+                  "    \r",
+                  "    // Extract token from Authorization header\r",
+                  "    const authHeader = pm.response.headers.get(\"Authorization\");\r",
+                  "    \r",
+                  "    if (authHeader) {\r",
+                  "        const token = authHeader.replace(\"Bearer \", \"\");\r",
+                  "        \r",
+                  "        pm.collectionVariables.set(\"access_token\", token);\r",
+                  "        \r",
+                  "        console.log(\"✅ Token set successfully\");\r",
+                  "    } else {\r",
+                  "        // Fallback: check response body if header is missing\r",
+                  "        console.warn(\"⚠️ Authorization header not found\");\r",
+                  "    }\r",
+                  "    \r",
+                  "} else {\r",
+                  "    console.log(\"❌ Request failed:\", response.message);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Nnorom Ifeanyi\",\r\n    \"email\": \"nnoromifeanyi@gmail.com\",\r\n    \"password\": \"password\",\r\n    \"password_confirmation\": \"password\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201 - Success response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"Nnorom Ifeanyi\",\r\n    \"email\": \"nnoromifeanyi@gmail.com\",\r\n    \"password\": \"password\",\r\n    \"confirm_password\": \"password\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/register",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 08:42:07 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG95YWx0eS1zZXJ2aWNlLnRlc3Q6ODA5MC9hcGkvYXV0aC9yZWdpc3RlciIsImlhdCI6MTc3NjMyODkzOCwiZXhwIjoxNzc2MzMyNTM4LCJuYmYiOjE3NzYzMjg5MzgsImp0aSI6IlNzTkVud29uZVlTcmNLSTUiLCJzdWIiOiIxMiIsInBydiI6IjhlZWY1Zjk4NzRiYThlMzI1MmY1NzFlNDU0NDdhMmNkNGU3NGU3MmMiLCJyb2xlIjoiY3VzdG9tZXIiLCJlbWFpbCI6Im5ub3JvbWlmZWFueWlAZ21haWwuY29tIn0.9cy9UiD_U4fckT3XEANfZcaZR-ojQMPtEwyEcSaE0F8"
+                },
+                {
+                  "key": "X-Token-TTL",
+                  "value": "60"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"status_code\": 201,\n    \"message\": \"Registration successful\",\n    \"data\": {\n        \"id\": 12,\n        \"name\": \"Nnorom Ifeanyi\",\n        \"email\": \"nnoromifeanyi@gmail.com\",\n        \"role\": \"customer\",\n        \"loyalty_points\": 0,\n        \"total_spent\": 0,\n        \"current_badge\": null\n    }\n}"
+            },
+            {
+              "name": "422 - Validation error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    // \"email\": \"nnoromifeanyi@gmail.com\",\r\n    // \"password\": \"password\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/register",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "status": "Unprocessable Content",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 08:33:21 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"status_code\": 422,\n    \"message\": \"The name field is required. (+2 more errors)\",\n    \"errors\": {\n        \"name\": [\n            \"The name field is required.\"\n        ],\n        \"email\": [\n            \"The email field is required.\"\n        ],\n        \"password\": [\n            \"The password field is required.\"\n        ]\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {\r",
+                  "    \r",
+                  "    // Extract token from Authorization header\r",
+                  "    const authHeader = pm.response.headers.get(\"Authorization\");\r",
+                  "    \r",
+                  "    if (authHeader) {\r",
+                  "        const token = authHeader.replace(\"Bearer \", \"\");\r",
+                  "        \r",
+                  "        pm.collectionVariables.set(\"access_token\", token);\r",
+                  "        \r",
+                  "        console.log(\"✅ Token set successfully\");\r",
+                  "    } else {\r",
+                  "        // Fallback: check response body if header is missing\r",
+                  "        console.warn(\"⚠️ Authorization header not found\");\r",
+                  "    }\r",
+                  "    \r",
+                  "} else {\r",
+                  "    console.log(\"❌ Request failed:\", response.message);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"andres09@example.net\",\r\n    \"password\": \"password\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Success response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"andres09@example.net\",\r\n    \"password\": \"password\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 08:05:02 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG95YWx0eS1zZXJ2aWNlLnRlc3Q6ODA5MC9hcGkvYXV0aC9sb2dpbiIsImlhdCI6MTc3NjMyNjcxMywiZXhwIjoxNzc2MzMwMzEzLCJuYmYiOjE3NzYzMjY3MTMsImp0aSI6InhWdEJzZk5SOEF2a1NxNXoiLCJzdWIiOiIyIiwicHJ2IjoiOGVlZjVmOTg3NGJhOGUzMjUyZjU3MWU0NTQ0N2EyY2Q0ZTc0ZTcyYyIsInJvbGUiOiJjdXN0b21lciIsImVtYWlsIjoiYW5kcmVzMDlAZXhhbXBsZS5uZXQifQ.o-Uw949FX1uSYRqJgy9FUoH3N3yTGpRwTASpFA4idoc"
+                },
+                {
+                  "key": "X-Token-TTL",
+                  "value": "60"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"status_code\": 200,\n    \"message\": \"Login successful\",\n    \"data\": {\n        \"id\": 2,\n        \"name\": \"Lela Kohler\",\n        \"email\": \"andres09@example.net\",\n        \"role\": \"customer\",\n        \"loyalty_points\": 672.22,\n        \"total_spent\": 70688.55,\n        \"current_badge\": null\n    }\n}"
+            },
+            {
+              "name": "401 - Invalid credentials",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"andres090@example.net\",\r\n    \"password\": \"password\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 08:07:06 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"status_code\": 401,\n    \"message\": \"The provided credentials are incorrect.\"\n}"
+            },
+            {
+              "name": "422 - Validation error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    // \"email\": \"andres090@example.net\",\r\n    \"password\": \"password\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "Unprocessable Content",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 08:10:01 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"status_code\": 422,\n    \"message\": \"The email field is required. (+1 more error)\",\n    \"errors\": {\n        \"email\": [\n            \"The email field is required.\"\n        ],\n        \"password\": [\n            \"The password field is required.\"\n        ]\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {\r",
+                  "    \r",
+                  "    // Extract token from Authorization header\r",
+                  "    const authHeader = pm.response.headers.get(\"Authorization\");\r",
+                  "    \r",
+                  "    if (authHeader) {\r",
+                  "        const token = authHeader.replace(\"Bearer \", \"\");\r",
+                  "        \r",
+                  "        pm.collectionVariables.set(\"access_token\", token);\r",
+                  "        \r",
+                  "        console.log(\"✅ Token set successfully\");\r",
+                  "    } else {\r",
+                  "        // Fallback: check response body if header is missing\r",
+                  "        console.warn(\"⚠️ Authorization header not found\");\r",
+                  "    }\r",
+                  "    \r",
+                  "} else {\r",
+                  "    console.log(\"❌ Request failed:\", response.message);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Success response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/refresh",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "refresh"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 09:41:36 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG95YWx0eS1zZXJ2aWNlLnRlc3Q6ODA5MC9hcGkvYXV0aC9yZWZyZXNoIiwiaWF0IjoxNzc2MzMxOTQyLCJleHAiOjE3NzYzMzYwOTgsIm5iZiI6MTc3NjMzMjQ5OCwianRpIjoiQnFxMklMY2JEdGV1ZWJEQyIsInN1YiI6IjIiLCJwcnYiOiI4ZWVmNWY5ODc0YmE4ZTMyNTJmNTcxZTQ1NDQ3YTJjZDRlNzRlNzJjIiwicm9sZSI6ImN1c3RvbWVyIiwiZW1haWwiOiJhbmRyZXMwOUBleGFtcGxlLm5ldCJ9.fiGSWnAwx_JYhgaBm1a6SAgPEkwEViQRUSJC4VgeUH8"
+                },
+                {
+                  "key": "X-Token-TTL",
+                  "value": "60"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"status_code\": 200,\n    \"message\": \"Token refreshed.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get current user",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Success response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/me",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "me"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 10:41:09 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"status_code\": 200,\n    \"message\": \"Authenticated user.\",\n    \"data\": {\n        \"id\": 2,\n        \"name\": \"Lela Kohler\",\n        \"email\": \"andres09@example.net\",\n        \"role\": \"customer\",\n        \"loyalty_points\": 672.22,\n        \"total_spent\": 70688.55,\n        \"current_badge\": null\n    }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "User achievements",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/:user_id/achievements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                ":user_id",
+                "achievements"
+              ],
+              "variable": [
+                {
+                  "key": "user_id",
+                  "value": "2",
+                  "description": "The user id"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Success response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/users/:user_id/achievements",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    ":user_id",
+                    "achievements"
+                  ],
+                  "variable": [
+                    {
+                      "key": "user_id",
+                      "value": "2",
+                      "description": "The user id"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 09:50:29 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"status_code\": 200,\n    \"message\": \"Loyalty profile retrieved.\",\n    \"data\": {\n        \"user\": {\n            \"id\": 2,\n            \"name\": \"Lela Kohler\",\n            \"loyalty_points\": 672.22,\n            \"total_spent\": 70688.55\n        },\n        \"current_badge\": null,\n        \"next_badge\": {\n            \"name\": \"Bronze\",\n            \"min_points\": 0,\n            \"points_needed\": 0,\n            \"progress_percent\": 100\n        },\n        \"achievements\": [],\n        \"badge_history\": [],\n        \"stats\": {\n            \"total_achievements\": 0,\n            \"purchase_count\": 0\n        }\n    }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Purchases",
+      "item": [
+        {
+          "name": "Get user purchases",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/purchases",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "purchases"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Success response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/purchases",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "purchases"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 10:34:14 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"success\": true,\n    \"status_code\": 200,\n    \"message\": \"Purchase history retrieved.\",\n    \"data\": {\n        \"current_page\": 1,\n        \"data\": [\n            {\n                \"id\": 2,\n                \"user_id\": 2,\n                \"reference\": \"LYL-HYWYVIN2MZD5Y0ZL8P5L\",\n                \"amount\": \"2000.00\",\n                \"cashback_amount\": \"0.00\",\n                \"status\": \"pending\",\n                \"paystack_transaction_id\": null,\n                \"paystack_response\": null,\n                \"processed_for_loyalty\": false,\n                \"completed_at\": null,\n                \"created_at\": \"2026-04-16T12:00:22.000000Z\",\n                \"updated_at\": \"2026-04-16T12:00:22.000000Z\",\n                \"cashback_transaction\": null\n            },\n            {\n                \"id\": 1,\n                \"user_id\": 2,\n                \"reference\": \"LYL-3JJMWKBSNMCW7AZUDHTC\",\n                \"amount\": \"2000.00\",\n                \"cashback_amount\": \"0.00\",\n                \"status\": \"pending\",\n                \"paystack_transaction_id\": null,\n                \"paystack_response\": null,\n                \"processed_for_loyalty\": false,\n                \"completed_at\": null,\n                \"created_at\": \"2026-04-16T11:50:01.000000Z\",\n                \"updated_at\": \"2026-04-16T11:50:01.000000Z\",\n                \"cashback_transaction\": null\n            }\n        ],\n        \"first_page_url\": \"http://loyalty-service.test:8090/api/purchases?page=1\",\n        \"from\": 1,\n        \"last_page\": 1,\n        \"last_page_url\": \"http://loyalty-service.test:8090/api/purchases?page=1\",\n        \"links\": [\n            {\n                \"url\": null,\n                \"label\": \"&laquo; Previous\",\n                \"page\": null,\n                \"active\": false\n            },\n            {\n                \"url\": \"http://loyalty-service.test:8090/api/purchases?page=1\",\n                \"label\": \"1\",\n                \"page\": 1,\n                \"active\": true\n            },\n            {\n                \"url\": null,\n                \"label\": \"Next &raquo;\",\n                \"page\": null,\n                \"active\": false\n            }\n        ],\n        \"next_page_url\": null,\n        \"path\": \"http://loyalty-service.test:8090/api/purchases\",\n        \"per_page\": 15,\n        \"prev_page_url\": null,\n        \"to\": 2,\n        \"total\": 2\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Make purchase",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"amount\": 2000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/purchases",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "purchases"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Success response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": 2000\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/purchases",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "purchases"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 12:00:14 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"success\": true,\n    \"status_code\": 200,\n    \"message\": \"Payment initialised.\",\n    \"data\": {\n        \"reference\": \"LYL-HYWYVIN2MZD5Y0ZL8P5L\",\n        \"authorization_url\": \"https://checkout.paystack.com/0uhjk57161wvdo1\",\n        \"access_code\": \"0uhjk57161wvdo1\"\n    }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Users achievements",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/achievements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "achievements"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": null,
+                  "disabled": true
+                },
+                {
+                  "key": "badge",
+                  "value": null,
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "items per page",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Success response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/admin/users/achievements",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "users",
+                    "achievements"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 11:34:31 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"status_code\": 200,\n    \"message\": \"Users retrieved.\",\n    \"data\": {\n        \"data\": [\n            {\n                \"id\": 9,\n                \"name\": \"Prof. Mya Oberbrunner\",\n                \"email\": \"wintheiser.marguerite@example.net\",\n                \"loyalty_points\": 2635.96,\n                \"total_spent\": 108731.26,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            },\n            {\n                \"id\": 6,\n                \"name\": \"Nya Lueilwitz\",\n                \"email\": \"wjohns@example.org\",\n                \"loyalty_points\": 2532.95,\n                \"total_spent\": 47942.24,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            },\n            {\n                \"id\": 3,\n                \"name\": \"Kayli Kub PhD\",\n                \"email\": \"effertz.jerrold@example.com\",\n                \"loyalty_points\": 1607.51,\n                \"total_spent\": 81235.16,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            },\n            {\n                \"id\": 7,\n                \"name\": \"Jovany Auer\",\n                \"email\": \"herman05@example.org\",\n                \"loyalty_points\": 1563.36,\n                \"total_spent\": 114429.64,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            },\n            {\n                \"id\": 11,\n                \"name\": \"Kaitlin Mueller\",\n                \"email\": \"alexandria.ziemann@example.net\",\n                \"loyalty_points\": 1515.16,\n                \"total_spent\": 111953.86,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            },\n            {\n                \"id\": 8,\n                \"name\": \"Euna Muller\",\n                \"email\": \"eloisa.barrows@example.net\",\n                \"loyalty_points\": 1250.53,\n                \"total_spent\": 56838.92,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            },\n            {\n                \"id\": 2,\n                \"name\": \"Lela Kohler\",\n                \"email\": \"andres09@example.net\",\n                \"loyalty_points\": 672.22,\n                \"total_spent\": 70688.55,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            },\n            {\n                \"id\": 10,\n                \"name\": \"Akeem Parker\",\n                \"email\": \"rgleason@example.net\",\n                \"loyalty_points\": 643.82,\n                \"total_spent\": 98220.11,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            },\n            {\n                \"id\": 5,\n                \"name\": \"Talon Kilback\",\n                \"email\": \"cummings.chris@example.com\",\n                \"loyalty_points\": 383.03,\n                \"total_spent\": 16016.56,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            },\n            {\n                \"id\": 4,\n                \"name\": \"Alessia Kub\",\n                \"email\": \"beatty.gaylord@example.com\",\n                \"loyalty_points\": 256.62,\n                \"total_spent\": 57538.14,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            },\n            {\n                \"id\": 12,\n                \"name\": \"Nnorom Ifeanyi\",\n                \"email\": \"nnoromifeanyi@gmail.com\",\n                \"loyalty_points\": 0,\n                \"total_spent\": 0,\n                \"total_achievements\": 0,\n                \"current_badge\": null\n            }\n        ],\n        \"meta\": {\n            \"current_page\": 1,\n            \"last_page\": 1,\n            \"per_page\": 20,\n            \"total\": 11\n        }\n    }\n}"
+            },
+            {
+              "name": "403 - Admin access required",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/admin/users/achievements",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "users",
+                    "achievements"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 11:26:27 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"status_code\": 403,\n    \"message\": \"Forbidden. Admin access required.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "View user details",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/:user_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                ":user_id"
+              ],
+              "variable": [
+                {
+                  "key": "user_id",
+                  "value": "2",
+                  "description": "The user id"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Success response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/admin/users/:user_id",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "users",
+                    ":user_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "user_id",
+                      "value": "2",
+                      "description": "The user id"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 11:36:51 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"success\": true,\n    \"status_code\": 200,\n    \"message\": \"User profile retrieved.\",\n    \"data\": {\n        \"user\": {\n            \"id\": 2,\n            \"name\": \"Lela Kohler\",\n            \"email\": \"andres09@example.net\",\n            \"loyalty_points\": 672.22,\n            \"total_spent\": 70688.55,\n            \"created_at\": \"2026-04-15T14:05:28.000000Z\"\n        },\n        \"current_badge\": null,\n        \"achievements\": [],\n        \"recent_purchases\": [],\n        \"cashback_summary\": {\n            \"total_paid\": 0,\n            \"total_pending\": 0\n        }\n    }\n}"
+            },
+            {
+              "name": "403 - Admin access required",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/admin/users/:user_id",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "users",
+                    ":user_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "user_id",
+                      "value": "2",
+                      "description": "The user id"
+                    }
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Thu, 16 Apr 2026 11:05:48 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "Apache/2.4.59 (Win64) OpenSSL/3.1.5 PHP/8.2.18 mod_fcgid/2.3.10-dev"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.2.18"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Connection",
+                  "value": "close"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"success\": false,\n    \"status_code\": 403,\n    \"message\": \"Forbidden. Admin access required.\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": ""
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    }
+  ]
+}

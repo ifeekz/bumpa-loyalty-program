@@ -2,7 +2,7 @@
 
 A full-stack e-commerce loyalty program built as a senior full-stack engineer assessment for **Bumpa**. The system awards points, unlocks achievements, promotes badge tiers, and pays cashback to customers via Paystack.
 
-**[Backend Documentation](./backend/README.md)** · **[Frontend Documentation](./frontend/README.md)**
+**[Backend Documentation](./backend/README.md)** · **[Frontend Documentation](./frontend/README.md)** . **[Postman Collection](./Bumpa%20Loyalty%20Program.postman_collection.json)**
 
 ---
 
